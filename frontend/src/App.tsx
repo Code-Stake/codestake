@@ -1,33 +1,34 @@
 import React, { useEffect, useState } from "react";
 import "./App.css";
-import io from "socket.io-client";
+// import io from "socket.io-client";
 
-const socket = io("http://localhost:3001");
+// const socket = io("http://localhost:3001");
 
 function App() {
-  const [room, setRoom] = useState("");
-  const [message, setMessage] = useState("");
-  const [messageReceived, setMessageReceived] = useState("");
+  // const [room, setRoom] = useState("");
+  // const [message, setMessage] = useState("");
+  // const [messageReceived, setMessageReceived] = useState("");
 
-  const joinRoom = () => {
-    if (room !== "") {
-      socket.emit("join_room", room);
-    }
-  };
+  // const joinRoom = () => {
+  //   if (room !== "") {
+  //     socket.emit("join_room", room);
+  //   }
+  // };
 
-  const sendMessage = () => {
-    socket.emit("send_message", { message, room });
-  };
+  // const sendMessage = () => {
+  //   socket.emit("send_message", { message, room });
+  // };
 
-  useEffect(() => {
-    socket.on("receive_message", (data) => {
-      setMessageReceived(data.message);
-    });
-  }, [socket]);
+  // useEffect(() => {
+  //   socket.on("receive_message", (data) => {
+  //     setMessageReceived(data.message);
+  //   });
+  // }, [socket]);
 
   return (
     <div className="App">
-      <input
+      <h1>HELLO WORLD</h1>
+      {/* <input
         placeholder="Room Number..."
         onChange={(event) => {
           setRoom(event.target.value);
@@ -41,7 +42,7 @@ function App() {
         }}
       />
       <button onClick={sendMessage}> Send Message</button>
-      {messageReceived}
+      {messageReceived} */}
     </div>
   );
 }
