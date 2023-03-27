@@ -8,7 +8,7 @@ const UserContext = createContext({});
 
 // @ts-ignore
 export const AuthContextProvider = ({ children }) => {
-  const [user, setUser] = useState({});
+  const [user, setUser] = useState(null);
 
   const signUpWithGoogle = async () => {
     const provider = new GoogleAuthProvider();
