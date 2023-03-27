@@ -4,27 +4,31 @@ import App from "./App";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import reportWebVitals from "./reportWebVitals";
 
-import { Landing } from "./components/Landing";
-import { ProtectedRoute } from "./components/ProtectedRoute";
+import { Dashboard } from "./components/Dashboard";
+
 import Login from "./components/Login";
+import { AuthContextProvider } from "./context/AuthContext";
+import { ProtectedRoute } from "./components/ProtectedRoute";
 
 const root = ReactDOM.createRoot(document.getElementById("root") as HTMLElement);
 root.render(
   <React.StrictMode>
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<App />} />
-        <Route path="/login" element={<Login />} />
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute>
-              <Landing />
-            </ProtectedRoute>
-          }
-        />
-      </Routes>
-    </BrowserRouter>
+    <AuthContextProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<App />} />
+          <Route path="/login" element={<Login />} />
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+        </Routes>
+      </BrowserRouter>
+    </AuthContextProvider>
   </React.StrictMode>
 );
 

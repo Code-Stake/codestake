@@ -1,18 +1,15 @@
 import React from "react";
-import { Route, Navigate } from "react-router-dom";
-import { auth } from "../firebase";
-import { useState } from "react";
+import { Navigate } from "react-router-dom";
+import { UserAuth } from "../context/AuthContext";
 
-export const ProtectedRoute = ({ children }: any) => {
-  const [userAuthencated, setUserAuthencated] = useState<boolean>(false);
+// @ts-ignore
+export const ProtectedRoute = ({ children }) => {
+  // @ts-ignore
+  const { user } = UserAuth();
 
-  auth.onAuthStateChanged((user) => {
-    if (user) {
-      setUserAuthencated(true);
-    } else {
-      setUserAuthencated(false);
-    }
-  });
+  if (!user) {
+    return <Navigate to="/login" />;
+  }
 
-  return userAuthencated ? <Route>{children}</Route> : <Navigate to="/login" />;
+  return <>{children}</>;
 };
