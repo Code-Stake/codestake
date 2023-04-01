@@ -13,12 +13,12 @@
   ```
 */
 
-import { Navigate, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { UserAuth } from "../context/AuthContext";
 
 export default function Login() {
   // @ts-ignore
-  const { signUpWithGoogle, user } = UserAuth();
+  const { signUpWithGoogle } = UserAuth();
   const navigate = useNavigate();
 
   const handleLogin = async (e: any) => {
@@ -32,17 +32,13 @@ export default function Login() {
     }
   };
 
-  if (user) {
-    return <Navigate to="/dashboard" />;
-  } else {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-md w-full space-y-8">
-          <div>
-            <button onClick={handleLogin}>Sign in with Google</button>
-          </div>
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-8">
+        <div>
+          <button onClick={handleLogin}>Sign in with Google</button>
         </div>
       </div>
-    );
-  }
+    </div>
+  );
 }
