@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Navigate } from "react-router-dom";
 import { UserAuth } from "../context/AuthContext";
 
@@ -7,9 +7,15 @@ export const ProtectedRoute = ({ children }) => {
   // @ts-ignore
   const { user } = UserAuth();
 
-  if (!user) {
-    return <Navigate to="/login" />;
-  }
+  useEffect(() => {
+    const handleRouteChange = () => {
+      if (!user) {
+        return <Navigate to="/login" />;
+      }
+    };
+
+    handleRouteChange();
+  }, [user]);
 
   return <>{children}</>;
 };
