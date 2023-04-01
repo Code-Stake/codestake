@@ -9,6 +9,7 @@ const UserContext = createContext({});
 // @ts-ignore
 export const AuthContextProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   const signUpWithGoogle = async () => {
     const provider = new GoogleAuthProvider();
@@ -27,6 +28,7 @@ export const AuthContextProvider = ({ children }) => {
 
   const logout = async () => {
     try {
+      setUser(null);
       await auth.signOut();
     } catch (error) {
       console.log(error);
@@ -34,11 +36,10 @@ export const AuthContextProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    // @ts-ignore
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-      console.log("user", user);
       // @ts-ignore
       setUser(user);
+      setIsLoading(false);
     });
 
     return () => unsubscribe();
@@ -49,6 +50,7 @@ export const AuthContextProvider = ({ children }) => {
       value={{
         signUpWithGoogle,
         user,
+        isLoading,
         logout,
       }}
     >
