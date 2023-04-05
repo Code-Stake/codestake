@@ -3,12 +3,14 @@ import React from "react";
 const OutputWindow = ({ outputDetails }: { outputDetails: any }) => {
   const getOutput = () => {
     let statusId = outputDetails?.status?.id;
+    console.log(outputDetails);
 
     if (statusId === 6) {
       // compilation error
       return (
         <pre className="px-2 py-1 font-normal text-xs text-red-500">
           {atob(outputDetails?.compile_output)}
+          status 6
         </pre>
       );
     } else if (statusId === 3) {
@@ -23,12 +25,21 @@ const OutputWindow = ({ outputDetails }: { outputDetails: any }) => {
       return (
         <pre className="px-2 py-1 font-normal text-xs text-red-500">
           {`Time Limit Exceeded`}
+          TLE
+        </pre>
+      );
+    } else if (statusId === 4) {
+      // when expected output != actual output
+      return (
+        <pre className="px-2 py-1 font-normal text-xs text-red-500">
+          Expected Output Does Not Match
         </pre>
       );
     } else {
       return (
         <pre className="px-2 py-1 font-normal text-xs text-red-500">
-          {atob(outputDetails?.stderr)}
+          {outputDetails?.stderr}
+          error
         </pre>
       );
     }

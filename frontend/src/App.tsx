@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./App.css";
 import io from "socket.io-client";
+import Landing from "./components/Landing";
 
 const socket = io("http://localhost:3001");
 
@@ -65,7 +66,7 @@ function App() {
 
   return (
     <div className="App">
-      <h1>HELLO WORLD</h1>
+      <h1 className="bg-red-500">HELLO WORLD</h1>
       <input
         placeholder="Room Number..."
         onChange={(event) => {
@@ -97,7 +98,7 @@ function App() {
       <div>
         {isRoomFull ? (
           <div>
-            <button>Start Challenge</button>
+            <Landing />
           </div>
         ) : (
           <div>Waiting for other player to join...</div>

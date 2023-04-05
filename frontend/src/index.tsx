@@ -12,6 +12,7 @@ import Login from "./components/Login";
 import { AuthContextProvider } from "./context/AuthContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { Profile } from "./components/Profile";
+import "./index.css";
 
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement

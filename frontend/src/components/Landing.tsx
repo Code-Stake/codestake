@@ -5,6 +5,7 @@ import CodeEditorWindow from "./CodeEditorWindow";
 import axios from "axios";
 import { classnames } from "../utils/general";
 import { languageOptions } from "../constants/languageOptions";
+import "../index.css";
 
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -57,12 +58,20 @@ const Landing = () => {
     }
   };
 
+  let configCode = code;
+  configCode += `
+s = input()
+print(validP(s))
+  `;
+  console.log(configCode);
+
   const handleCompile = () => {
     setProcessing(true);
     const formData = {
       language_id: language.id,
       // encode source code in base64
-      source_code: btoa(code),
+      expected_output: btoa("True"),
+      source_code: btoa(configCode),
       stdin: btoa(customInput),
     };
     const options = {
@@ -172,7 +181,7 @@ const Landing = () => {
         draggable
         pauseOnHover
       />
-      <div className="h-4 w-full bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500"></div>
+      <div className="h-16 w-full bg-gradient-to-r from-pink-500 via-blue-500 to-red-500"></div>
       <div className="flex flex-row">
         <div className="px-4 py-2">
           <LanguagesDropdown onSelectChange={onSelectChange} />
@@ -182,7 +191,7 @@ const Landing = () => {
         </div>
       </div>
       <div className="flex flex-row space-x-4 items-start px-4 py-4">
-        <div className="flex flex-col w-full h-full justify-start items-end">
+        <div className="flex flex-col w-1/2 h-3/4 bg-blue-500 justify-start items-end">
           <CodeEditorWindow
             code={code}
             onChange={onChange}
