@@ -25,10 +25,29 @@ const OutputWindow = ({ outputDetails }: { outputDetails: any }) => {
       return (
         <pre className="px-2 py-1 font-normal text-xs text-red-500">
           {`Time Limit Exceeded`}
-          TLE
         </pre>
       );
     } else if (statusId === 4) {
+      // if the last line of the output is equal to the expected output then true
+      // else false
+      let actualOutput = atob(outputDetails?.stdout);
+      console.log(actualOutput);
+      let actualOutputArray = actualOutput.split("\n");
+      console.log(actualOutputArray);
+
+      if (
+        actualOutputArray[actualOutputArray.length - 2] ===
+        atob(outputDetails?.expected_output)
+      ) {
+        return (
+          <pre className="px-2 py-1 font-normal text-xs text-green-500">
+            {atob(outputDetails.stdout) !== null
+              ? `${atob(outputDetails.stdout)}`
+              : null}
+          </pre>
+        );
+      }
+
       // when expected output != actual output
       return (
         <pre className="px-2 py-1 font-normal text-xs text-red-500">
@@ -38,7 +57,7 @@ const OutputWindow = ({ outputDetails }: { outputDetails: any }) => {
     } else {
       return (
         <pre className="px-2 py-1 font-normal text-xs text-red-500">
-          {outputDetails?.stderr}
+          {atob(outputDetails?.stderr)}
           error
         </pre>
       );

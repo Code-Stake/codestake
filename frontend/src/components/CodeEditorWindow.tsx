@@ -25,10 +25,10 @@ const CodeEditorWindow = ({ onChange, language, code, theme }: Params) => {
       <Editor
         height="85vh"
         width={`100%`}
-        language={language || "javascript"}
+        language={language || "python"}
         value={value}
         theme={theme}
-        defaultValue="// some comment"
+        defaultValue={code}
         onChange={handleEditorChange}
       />
     </div>
