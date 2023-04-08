@@ -52,6 +52,8 @@ const OutputWindow = ({ outputDetails }: { outputDetails: any }) => {
       return (
         <pre className="px-2 py-1 font-normal text-xs text-red-500">
           Expected Output Does Not Match
+          {atob(outputDetails?.stdout)}
+          {atob(outputDetails?.expected_output)}
         </pre>
       );
     } else {

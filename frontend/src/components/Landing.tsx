@@ -25,6 +25,7 @@ import {
   collection,
   getDocs,
   query,
+  getDoc,
 } from "firebase/firestore";
 
 // const javascriptDefault = `// some comment`;
@@ -93,6 +94,7 @@ const Landing = () => {
   const [testCaseOuput, setTestCaseOutput] = useState("");
   const [prompt, setPrompt] = useState("");
   const [executionCode, setExecutionCode] = useState("");
+  const [classCode, setClassCode] = useState("");
 
   const enterPress = useKeyPress("Enter");
   const ctrlPress = useKeyPress("Control");
@@ -107,25 +109,41 @@ const Landing = () => {
   };
 
   const getQuestionData = async () => {
-    const q = query(collection(db, "solutions"));
-    const querySnapshot = getDocs(q)
-      .then(function (querySnapshot) {
-        querySnapshot.forEach(function (doc) {
-          console.log("doc.data()", doc.data());
-          setQuestionData(doc.data());
-          setCode(doc.data().starterCode.python3);
-          console.log(doc.data().starterCode.python3);
-          console.log(code);
-          setTestCaseInput(doc.data().testCases[0].input);
-          setTestCaseOutput(doc.data().testCases[0].output);
-          setExecutionCode(doc.data().executionCode.replace(/\\n/g, "\n"));
-
-          setPrompt(doc.data().prompt);
-        });
-      })
-      .catch(function (error) {
-        console.log("Error getting documents: ", error);
-      });
+    try {
+      const docRef = doc(collection(db, "solutions"), "reverse-linked-list");
+      const docSnap = await getDoc(docRef);
+      console.log("docSnap", docSnap.data());
+      if (!docSnap.exists()) throw new Error("No such document!");
+      setQuestionData(docSnap.data());
+      setCode(
+        docSnap
+          .data()
+          .starterCode.python3.replace(/\\n/g, "\n")
+          .replace(/\\t/g, "\t")
+      );
+      console.log(docSnap.data().starterCode.python3);
+      console.log(code);
+      if (docSnap.data().testCases[1]?.arrayRepInput)
+        setTestCaseInput(docSnap.data().testCases[1].arrayRepInput);
+      else setTestCaseInput(docSnap.data().testCases[1].input);
+      setTestCaseOutput(docSnap.data().testCases[1].output);
+      setExecutionCode(
+        docSnap
+          .data()
+          .executionCode.python3.replace(/\\n/g, "\n")
+          .replace(/\\t/g, "\t")
+      );
+      setPrompt(docSnap.data().prompt);
+      if (docSnap.data().classCode)
+        setClassCode(
+          docSnap
+            .data()
+            .classCode.python3.replace(/\\n/g, "\n")
+            .replace(/\\t/g, "\t")
+        );
+    } catch (error) {
+      console.log("error", error);
+    }
   };
 
   useEffect(() => {
@@ -148,7 +166,7 @@ const Landing = () => {
   };
 
   console.log(code);
-  let configCode = code + executionCode;
+  let configCode = classCode + code + executionCode;
   console.log(configCode);
 
   const handleCompile = () => {
