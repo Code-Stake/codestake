@@ -77,7 +77,7 @@ const Landing = () => {
 
   // Code related functions
   const getQuestionContent = () => {
-    axios.get("http://localhost:3001/api/questionContents").then((response) => {
+    axios.get("http://localhost:3001/api/question/content").then((response) => {
       setQuestionContents(response.data);
       setPreProcessingCode(response.data["preProcessingCode"]);
       setCode(response.data["starterCode"].trim());
@@ -191,8 +191,7 @@ const Landing = () => {
           draggable
           pauseOnHover
         />
-        <div className="h-16 w-full bg-gradient-to-r from-pink-500 via-blue-500 to-red-500"></div>
-        <div className="flex flex-row">
+        <div className="flex w-screen flex-row">
           <div className="px-4 py-2">
             <LanguagesDropdown onSelectChange={onSelectChange} />
           </div>
