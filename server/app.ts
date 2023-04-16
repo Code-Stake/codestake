@@ -18,11 +18,10 @@ const io = new Server(server, {
     methods: ["GET", "POST", "PUT", "DELETE"],
   },
 });
+const roomCapacity = {};
 
 io.on("connection", (socket) => {
   console.log("A user connected: " + socket.id);
-
-  const roomCapacity = {};
 
   socket.on("join_room", (data) => {
     const room = data;
@@ -47,6 +46,11 @@ io.on("connection", (socket) => {
 
   socket.on("send_message", (data) => {
     socket.to(data.roomEntered).emit("receive_message", data);
+  });
+
+  socket.on("get_room_capacity", (data) => {
+    console.log(roomCapacity);
+    socket.emit("room_capacity", roomCapacity);
   });
 
   // Listen to the 'disconnect' event on the socket
