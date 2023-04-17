@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import "./App.css";
 import io from "socket.io-client";
 import Landing from "./components/Landing";
+import { classnames } from "./utils/general";
 
 const socket = io("http://localhost:3001");
 
@@ -13,12 +14,26 @@ function App() {
   const [roomCapacity, setRoomCapacity] = useState(0);
   const [roomToEnter, setRoomToEnter] = useState("");
   const [isRoomFull, setIsRoomFull] = useState(false);
+  const [rooms, setRooms] = useState<Number[]>([]); // {room1: {capacity: 1, room: "room1"}, room2: {capacity: 2, room: "room2"}}
 
   const joinRoom = () => {
-    if (roomToEnter !== "") {
+    console.log("join room");
+    socket.emit("get_room_capacity");
+
+    socket.on("room_capacity", (data) => {
+      let rooms = data;
+      console.log(rooms);
+      let i = 0;
+      while (true) {
+        if (rooms.hasOwnProperty(i) && rooms[i] === 2) {
+          i += 1;
+        } else {
+          break;
+        }
+      }
       setIsRoomFull(false);
-      socket.emit("join_room", roomToEnter);
-    }
+      socket.emit("join_room", i);
+    });
   };
 
   const sendMessage = () => {
@@ -62,46 +77,61 @@ function App() {
       socket.off("room_full");
       socket.off("disconnect");
     };
-  }, []);
+  }, [rooms]);
+
+  const InfoComponent = () => {
+    return (
+      <div className="w-full h-56 flex flex-col items-center  justify-center">
+        {joinedRoom ? (
+          <></>
+        ) : (
+          <button
+            className={
+              "mt-4 border-2 border-black z-10 text-4xl rounded-md shadow-[5px_5px_0px_0px_rgba(0,0,0)] px-12 py-8 hover:shadow transition duration-200 bg-white flex-shrink-0 "
+            }
+            onClick={joinRoom}
+          >
+            {" "}
+            Join Room
+          </button>
+        )}
+
+        {joinedRoom ? (
+          <div className="">
+            <h1>You have joined room {roomEntered}</h1>
+            <h2>Capacity: {roomCapacity}/2</h2>
+          </div>
+        ) : null}
+
+        <div className="w-fit border-2 border-black z-10 rounded-md shadow-[5px_5px_0px_0px_rgba(0,0,0)] px-4 py-2 hover:shadow transition duration-200 bg-white flex-shrink-0">
+          <button onClick={disconnectConnection}>Disconnect Connection</button>
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className="App">
-      <h1 className="bg-red-500">HELLO WORLD</h1>
-      <input
-        placeholder="Room Number..."
-        onChange={(event) => {
-          setRoomToEnter(event.target.value);
-        }}
-      />
-      <button onClick={joinRoom}> Join Room</button>
-      <input
-        placeholder="Message..."
-        onChange={(event) => {
-          setMessage(event.target.value);
-        }}
-      />
-      <button onClick={sendMessage}> Send Message</button>
-      {joinedRoom ? (
-        <div>
-          <h1>You have joined room {roomEntered}</h1>
-          <h2>Capacity: {roomCapacity}/2</h2>
+      <div
+        className={`items-center justify-center flex flex-col ${
+          isRoomFull ? "" : "h-screen"
+        }`}
+      >
+        <div className="h-16 w-full absolute top-0 bg-[#0099FF] flex items-center justify-center ">
+          <h1 className=" text-4xl text-white font-bold text-center">
+            CodeStake
+          </h1>
         </div>
-      ) : null}
-      <div>
-        <h1>Message Received: {messageReceived}</h1>
+        <InfoComponent />
       </div>
-
-      <div>
-        <button onClick={disconnectConnection}>Disconnect Connection</button>
-      </div>
-
       <div>
         {isRoomFull ? (
           <div>
+            <hr className="border-t border-gray-300 mb-8" />
             <Landing />
           </div>
         ) : (
-          <div>Waiting for other player to join...</div>
+          <div></div>
         )}
       </div>
     </div>
