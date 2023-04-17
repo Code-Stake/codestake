@@ -20,7 +20,7 @@ type themeType = { value: string; label: string } | string;
 const Landing = () => {
   // UI related states
   const [customInput, setCustomInput] = useState("");
-  const [outputDetails, setOutputDetails] = useState(null);
+  const [outputDetails, setOutputDetails] = useState<any>(null);
   const [processing, setProcessing] = useState<boolean | null>(null);
   const [theme, setTheme] = useState<themeType>("cobalt");
   const [language, setLanguage] = useState(languageOptions[37]);
@@ -33,7 +33,6 @@ const Landing = () => {
   const [testCaseOuput, setTestCaseOutput] = useState("[4, 3, 2, 1]");
   const [testCaseInputs, setTestCaseInputs] = useState<any>({});
   const [testCaseOutputs, setTestCaseOutputs] = useState<any>({});
-
   const [exeCode, setExeCode] = useState<any>("");
 
   // Initial GET request to get the question content
@@ -43,7 +42,6 @@ const Landing = () => {
 
   // UI related functions
   const onSelectChange = (sl: any) => {
-    console.log("selected Option...", sl);
     setLanguage(sl);
   };
   useEffect(() => {
@@ -77,7 +75,7 @@ const Landing = () => {
 
   // Code related functions
   const getQuestionContent = () => {
-    axios.get("http://localhost:3001/api/questionContents").then((response) => {
+    axios.get("http://localhost:3001/api/question/content").then((response) => {
       setQuestionContents(response.data);
       setPreProcessingCode(response.data["preProcessingCode"]);
       setCode(response.data["starterCode"].trim());
@@ -130,7 +128,6 @@ const Landing = () => {
     axios
       .request(options)
       .then(function (response) {
-        console.log("res.data", response.data);
         const token = response.data.token;
         checkStatus(token);
       })
@@ -165,9 +162,83 @@ const Landing = () => {
         setProcessing(false);
         setOutputDetails(response.data);
         showSuccessToast(`Compiled Successfully!`);
-        console.log("response.data", response.data);
         return;
       }
+    } catch (err) {
+      console.log("err", err);
+      setProcessing(false);
+      showErrorToast();
+    }
+  };
+  const handleCompileBatch = async () => {
+    setProcessing(true);
+    let formData = [];
+    for (const testcase in testCaseInputs) {
+      formData.push({
+        language_id: language.id,
+        expected_output: btoa(testCaseOutputs[testcase]),
+        source_code: btoa(preProcessingCode + code + exeCode),
+        stdin: btoa(testCaseInputs[testcase]),
+      });
+    }
+    const options = {
+      method: "POST",
+      url: process.env.REACT_APP_RAPID_API_URL_BATCH,
+      params: { base64_encoded: "true", fields: "*" },
+      headers: {
+        "content-type": "application/json",
+        "Content-Type": "application/json",
+        "X-RapidAPI-Host": process.env.REACT_APP_RAPID_API_HOST,
+        "X-RapidAPI-Key": process.env.REACT_APP_RAPID_API_KEY,
+      },
+      data: { submissions: formData },
+    };
+
+    axios
+      .request(options)
+      .then(function (response) {
+        let token = response.data.map((item: any) => item.token).join(",");
+        checkStatusBatch(token);
+      })
+      .catch((err) => {
+        let error = err.response ? err.response.data : err;
+        setProcessing(false);
+        console.log(error);
+      });
+  };
+  const checkStatusBatch = async (tokenStr: any) => {
+    const options = {
+      method: "GET",
+      url: process.env.REACT_APP_RAPID_API_URL_BATCH,
+      params: { tokens: tokenStr, base64_encoded: "true", fields: "*" },
+      headers: {
+        "X-RapidAPI-Host": process.env.REACT_APP_RAPID_API_HOST,
+        "X-RapidAPI-Key": process.env.REACT_APP_RAPID_API_KEY,
+      },
+    };
+    try {
+      let response = await axios.request(options);
+      let lastInput = {};
+      for (const result of response.data["submissions"]) {
+        let statusId = result.status?.id;
+        if (statusId === 1 || statusId === 2) {
+          // still processing
+          setTimeout(() => {
+            checkStatusBatch(tokenStr);
+          }, 2000);
+          return;
+        } else if (result.status["description"] !== "Accepted") {
+          setProcessing(false);
+          setOutputDetails(result);
+          showErrorToast("Failed test case!");
+          return;
+        }
+        lastInput = result;
+      }
+      setProcessing(false);
+      setOutputDetails(lastInput);
+      setCustomInput("Passed all test cases successfully!");
+      showSuccessToast(`Passed all test cases successfully!`);
     } catch (err) {
       console.log("err", err);
       setProcessing(false);
@@ -255,6 +326,16 @@ const Landing = () => {
                 )}
               >
                 {processing ? "Processing..." : "Test Case 3"}
+              </button>
+              <button
+                onClick={handleCompileBatch}
+                disabled={!code}
+                className={classnames(
+                  "mt-4 border-2 border-black z-10 rounded-md shadow-[5px_5px_0px_0px_rgba(0,0,0)] px-4 py-2 hover:shadow transition duration-200 bg-white flex-shrink-0",
+                  !code ? "opacity-50" : ""
+                )}
+              >
+                {processing ? "Processing..." : "Submit"}
               </button>
             </div>
             {outputDetails && <OutputDetails outputDetails={outputDetails} />}
