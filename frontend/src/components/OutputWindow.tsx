@@ -16,9 +16,7 @@ const OutputWindow = ({ outputDetails }: { outputDetails: any }) => {
     } else if (statusId === 3) {
       return (
         <pre className="px-2 py-1 font-normal text-xs text-green-500">
-          {atob(outputDetails.stdout) !== null
-            ? `${atob(outputDetails.stdout)}`
-            : null}
+          {atob(outputDetails.stdout) !== null ? "Success!" : null}
         </pre>
       );
     } else if (statusId === 5) {
@@ -79,7 +77,7 @@ const OutputWindow = ({ outputDetails }: { outputDetails: any }) => {
         </h1>
         <div
           className={`w-full h-16 bg-[#1e293b] rounded-md font-normal text-sm overflow-y-auto ${
-            outputDetails?.stdout == outputDetails?.expected_output
+            outputDetails?.status["description"] === "Accepted"
               ? "text-green-500"
               : "text-red-500"
           }`}
@@ -93,7 +91,7 @@ const OutputWindow = ({ outputDetails }: { outputDetails: any }) => {
         </h1>
         <div
           className={`w-full h-16 bg-[#1e293b] rounded-md font-normal text-sm overflow-y-auto ${
-            outputDetails?.stdout == outputDetails?.expected_output
+            outputDetails?.status["description"] === "Accepted"
               ? "text-green-500"
               : "text-red-500"
           }`}
