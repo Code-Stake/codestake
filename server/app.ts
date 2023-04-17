@@ -3,14 +3,14 @@ import http from "http";
 import cors from "cors";
 import { Server } from "socket.io";
 import routes from "./routes";
+import socketController from "./controllers/socketController";
 
-const app = express();
+export const app = express();
+export const server = http.createServer(app);
 
 app.use(express.json());
 app.use(cors());
 app.use("/api", routes);
-
-const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
@@ -18,57 +18,9 @@ const io = new Server(server, {
     methods: ["GET", "POST", "PUT", "DELETE"],
   },
 });
-const roomCapacity = {};
 
-io.on("connection", (socket) => {
-  console.log("A user connected: " + socket.id);
+socketController(io)
 
-  socket.on("join_room", (data) => {
-    const room = data;
-    let numUsers = io.sockets.adapter.rooms.get(room)?.size || 0;
-
-    if (numUsers < 2) {
-      socket.join(room);
-
-      numUsers = io.sockets.adapter.rooms.get(room)?.size;
-
-      //emit to all users in the room
-      io.to(room).emit("room_joined", {
-        message: `User joined room ${room}`,
-        room: room,
-        capacity: `${numUsers}`,
-      });
-      roomCapacity[room] = numUsers;
-    } else {
-      socket.emit("room_full", { message: "Room is already full!" });
-    }
-  });
-
-  socket.on("send_message", (data) => {
-    socket.to(data.roomEntered).emit("receive_message", data);
-  });
-
-  socket.on("get_room_capacity", (data) => {
-    console.log(roomCapacity);
-    socket.emit("room_capacity", roomCapacity);
-  });
-
-  // Listen to the 'disconnect' event on the socket
-  socket.on("disconnect", () => {
-    console.log(`Socket disconnected: ${socket.id}`);
-    // You can remove the socket from any rooms it's joined
-    const rooms = Object.keys(socket.rooms);
-    rooms.forEach((room) => {
-      if (room !== socket.id) {
-        socket.leave(room);
-        // Decrement the room capacity when the socket leaves the room
-        roomCapacity[room] -= 1;
-        // Emit the room capacity to all sockets in the room
-        // io.to(room).emit("room_capacity", { capacity: `${roomCapacity[room]}/2` })
-      }
-    });
-  });
-});
 
 app.get("/", (req, res) => {
   res.send("Hello World!");
