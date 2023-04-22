@@ -1,7 +1,7 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { UserAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
-// import CodeStake from "../api/CodeStake";
+
 
 export const Profile = () => {
   // @ts-ignore

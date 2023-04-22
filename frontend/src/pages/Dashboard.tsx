@@ -1,6 +1,6 @@
 import React from "react";
 import { app } from "../firebase";
-import { getFirestore, doc, collection, getDocs } from "firebase/firestore";
+import { getFirestore, collection, getDocs } from "firebase/firestore";
 
 // get firebase users
 
@@ -8,11 +8,11 @@ export const Dashboard = () => {
   const db = getFirestore(app);
   const userRef = collection(db, "users");
 
-  getDocs(userRef).then((querySnapshot) => {
-    querySnapshot.forEach((doc) => {
-      console.log(`${doc.id} => ${doc.data().firstName} ${doc.data().lastName}`);
-    });
-  });
+  // getDocs(userRef).then((querySnapshot) => {
+  //   querySnapshot.forEach((doc) => {
+  //     console.log(`${doc.id} => ${doc.data().firstName} ${doc.data().lastName}`);
+  //   });
+  // });
 
   // updateDoc(userDoc, {
   //   newProperty: "new value"

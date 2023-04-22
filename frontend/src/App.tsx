@@ -1,8 +1,7 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import "./App.css";
 import io from "socket.io-client";
-import Landing from "./components/Landing";
-import { classnames } from "./utils/general";
+import { CodeEditor } from "./pages/codeEditor";
 
 const socket = io("http://localhost:3001");
 
@@ -112,15 +111,9 @@ function App() {
 
   return (
     <div className="App">
-      <div
-        className={`items-center justify-center flex flex-col ${
-          isRoomFull ? "" : "h-screen"
-        }`}
-      >
+      <div className={`items-center justify-center flex flex-col ${isRoomFull ? "" : "h-screen"}`}>
         <div className="h-16 w-full absolute top-0 bg-[#0099FF] flex items-center justify-center ">
-          <h1 className=" text-4xl text-white font-bold text-center">
-            CodeStake
-          </h1>
+          <h1 className=" text-4xl text-white font-bold text-center">CodeStake</h1>
         </div>
         <InfoComponent />
       </div>
@@ -128,7 +121,7 @@ function App() {
         {isRoomFull ? (
           <div>
             <hr className="border-t border-gray-300 mb-8" />
-            <Landing />
+            <CodeEditor />
           </div>
         ) : (
           <div></div>

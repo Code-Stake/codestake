@@ -18,7 +18,7 @@ const postOptions = {
 const getOptions = {
     method: "GET",
     url: process.env.REACT_APP_RAPID_API_URL,
-    params: { token: "", base64_encoded: "true", fields: "*" },
+    params: { tokens: "", base64_encoded: "true", fields: "*" },
     headers: headers
 };
 
@@ -73,7 +73,7 @@ const getTokenBatch =  async (data : any) => {
 const checkTokenStatus = async (token: any) => {
 
     getOptions.url = process.env.REACT_APP_RAPID_API_URL + "/" + token;
-    getOptions.params = { token: "", base64_encoded: "true", fields: "*" };
+    getOptions.params = { tokens: "", base64_encoded: "true", fields: "*" };
 
     try {
         const response = await axios.request(getOptions);
@@ -90,7 +90,7 @@ const checkTokenStatus = async (token: any) => {
 const checkTokenStatusBatch = async (token : any) => {
 
     getOptions.url = process.env.REACT_APP_RAPID_API_URL_BATCH;
-    getOptions.params = { token: token, base64_encoded: "true", fields: "*" };
+    getOptions.params = { tokens: token, base64_encoded: "true", fields: "*" };
 
     try {
         const response = await axios.request(getOptions);

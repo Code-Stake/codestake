@@ -1,24 +1,24 @@
 // Landing.js
 
 import { useEffect, useState } from "react";
-import CodeEditorWindow from "./editor/CodeEditorWindow";
+import CodeEditorWindow from "../components/editor/CodeEditorWindow";
 import { classnames } from "../utils/general";
 import { languageOptions } from "../constants/languageOptions";
 import "../index.css";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { defineTheme } from "../lib/defineThemes";
-import OutputWindow from "./editor/OutputWindow";
-import CustomInput from "./editor/CustomInput";
-import OutputDetails from "./editor/OutputDetails";
-import ThemeDropdown from "./editor/ThemeDropdown";
-import LanguagesDropdown from "./editor/LanguagesDropdown";
+import OutputWindow from "../components/editor/OutputWindow";
+import CustomInput from "../components/editor/CustomInput";
+import OutputDetails from "../components/editor/OutputDetails";
+import ThemeDropdown from "../components/editor/ThemeDropdown";
+import LanguagesDropdown from "../components/editor/LanguagesDropdown";
 import axios from "axios";
 import { compile } from "../api/compile";
 
 type themeType = { value: string; label: string } | string;
 
-const Landing = () => {
+export const CodeEditor = () => {
   // UI related states
   const [customInput, setCustomInput] = useState("");
   const [outputDetails, setOutputDetails] = useState<any>(null);
@@ -71,8 +71,6 @@ const Landing = () => {
   }, []);
   function handleThemeChange(th: any) {}
 
-
-  
   const showSuccessToast = (msg: any) => {
     toast.success(msg || `Compiled Successfully!`, {
       position: "top-right",
@@ -172,6 +170,8 @@ const Landing = () => {
 
     const token = await compile.getTokenBatch(formData);
 
+    console.log("token", token);
+
     if (token) {
       checkStatusBatch(token);
     } else {
@@ -182,6 +182,8 @@ const Landing = () => {
   const checkStatusBatch = async (token: any) => {
     try {
       const response = await compile.checkTokenStatusBatch(token);
+
+      console.log("response", response);
 
       let lastInput = {};
       for (const result of response["submissions"]) {
@@ -298,4 +300,4 @@ const Landing = () => {
     );
   }
 };
-export default Landing;
+
