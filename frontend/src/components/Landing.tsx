@@ -1,19 +1,20 @@
 // Landing.js
 
 import { useEffect, useState } from "react";
-import CodeEditorWindow from "./CodeEditorWindow";
-import axios from "axios";
+import CodeEditorWindow from "./editor/CodeEditorWindow";
 import { classnames } from "../utils/general";
 import { languageOptions } from "../constants/languageOptions";
 import "../index.css";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { defineTheme } from "../lib/defineThemes";
-import OutputWindow from "./OutputWindow";
-import CustomInput from "./CustomInput";
-import OutputDetails from "./OutputDetails";
-import ThemeDropdown from "./ThemeDropdown";
-import LanguagesDropdown from "./LanguagesDropdown";
+import OutputWindow from "./editor/OutputWindow";
+import CustomInput from "./editor/CustomInput";
+import OutputDetails from "./editor/OutputDetails";
+import ThemeDropdown from "./editor/ThemeDropdown";
+import LanguagesDropdown from "./editor/LanguagesDropdown";
+import axios from "axios";
+import { compile } from "../api/compile";
 
 type themeType = { value: string; label: string } | string;
 
@@ -35,6 +36,25 @@ const Landing = () => {
   const [testCaseOutputs, setTestCaseOutputs] = useState<any>({});
   const [exeCode, setExeCode] = useState<any>("");
 
+  const getQuestionContent = () => {
+    axios.get("http://localhost:3001/api/question/content").then((response) => {
+      setQuestionContents(response.data);
+      setPreProcessingCode(response.data["preProcessingCode"]);
+      setCode(response.data["starterCode"].trim());
+      setExeCode(response.data["executionCode"]);
+      setTestCaseInputs({
+        1: response.data["testCaseInput1"].trim(),
+        2: response.data["testCaseInput2"].trim(),
+        3: response.data["testCaseInput3"].trim(),
+      });
+      setTestCaseOutputs({
+        1: response.data["testCaseOutput1"].trim(),
+        2: response.data["testCaseOutput2"].trim(),
+        3: response.data["testCaseOutput3"].trim(),
+      });
+    });
+  };
+
   // Initial GET request to get the question content
   useEffect(() => {
     getQuestionContent();
@@ -50,6 +70,9 @@ const Landing = () => {
     );
   }, []);
   function handleThemeChange(th: any) {}
+
+
+  
   const showSuccessToast = (msg: any) => {
     toast.success(msg || `Compiled Successfully!`, {
       position: "top-right",
@@ -73,25 +96,6 @@ const Landing = () => {
     });
   };
 
-  // Code related functions
-  const getQuestionContent = () => {
-    axios.get("http://localhost:3001/api/question/content").then((response) => {
-      setQuestionContents(response.data);
-      setPreProcessingCode(response.data["preProcessingCode"]);
-      setCode(response.data["starterCode"].trim());
-      setExeCode(response.data["executionCode"]);
-      setTestCaseInputs({
-        1: response.data["testCaseInput1"].trim(),
-        2: response.data["testCaseInput2"].trim(),
-        3: response.data["testCaseInput3"].trim(),
-      });
-      setTestCaseOutputs({
-        1: response.data["testCaseOutput1"].trim(),
-        2: response.data["testCaseOutput2"].trim(),
-        3: response.data["testCaseOutput3"].trim(),
-      });
-    });
-  };
   const onChange = (action: any, data: any) => {
     switch (action) {
       case "code": {
@@ -103,53 +107,35 @@ const Landing = () => {
       }
     }
   };
-  const handleCompile = (input: string, output: string) => {
+
+  const handleCompile = async (input: any, output: any) => {
     setProcessing(true);
     setTestCaseInput(input);
+
     const formData = {
       language_id: language.id,
       expected_output: btoa(output),
       source_code: btoa(preProcessingCode + code + exeCode),
       stdin: btoa(input),
     };
-    const options = {
-      method: "POST",
-      url: process.env.REACT_APP_RAPID_API_URL,
-      params: { base64_encoded: "true", fields: "*" },
-      headers: {
-        "content-type": "application/json",
-        "Content-Type": "application/json",
-        "X-RapidAPI-Host": process.env.REACT_APP_RAPID_API_HOST,
-        "X-RapidAPI-Key": process.env.REACT_APP_RAPID_API_KEY,
-      },
-      data: formData,
-    };
 
-    axios
-      .request(options)
-      .then(function (response) {
-        const token = response.data.token;
-        checkStatus(token);
-      })
-      .catch((err) => {
-        let error = err.response ? err.response.data : err;
-        setProcessing(false);
-        console.log(error);
-      });
+    const token = await compile.getToken(formData);
+
+    if (token) {
+      await checkStatus(token);
+    } else {
+      showErrorToast("Something went wrong on our end! Please try running your code again!");
+    }
   };
+
+  // checking token status for single test case
   const checkStatus = async (token: any) => {
-    const options = {
-      method: "GET",
-      url: process.env.REACT_APP_RAPID_API_URL + "/" + token,
-      params: { base64_encoded: "true", fields: "*" },
-      headers: {
-        "X-RapidAPI-Host": process.env.REACT_APP_RAPID_API_HOST,
-        "X-RapidAPI-Key": process.env.REACT_APP_RAPID_API_KEY,
-      },
-    };
+    console.log("token inside checkStatus", token);
+
     try {
-      let response = await axios.request(options);
-      let statusId = response.data.status?.id;
+      const data = await compile.checkTokenStatus(token);
+      console.log("data", data);
+      const statusId = data.statusId;
 
       // Processed - we have a result
       if (statusId === 1 || statusId === 2) {
@@ -160,19 +146,21 @@ const Landing = () => {
         return;
       } else {
         setProcessing(false);
-        setOutputDetails(response.data);
+        setOutputDetails(data);
         showSuccessToast(`Compiled Successfully!`);
         return;
       }
     } catch (err) {
-      console.log("err", err);
       setProcessing(false);
+      console.log("err", err);
       showErrorToast();
     }
   };
+
   const handleCompileBatch = async () => {
     setProcessing(true);
     let formData = [];
+
     for (const testcase in testCaseInputs) {
       formData.push({
         language_id: language.id,
@@ -181,50 +169,27 @@ const Landing = () => {
         stdin: btoa(testCaseInputs[testcase]),
       });
     }
-    const options = {
-      method: "POST",
-      url: process.env.REACT_APP_RAPID_API_URL_BATCH,
-      params: { base64_encoded: "true", fields: "*" },
-      headers: {
-        "content-type": "application/json",
-        "Content-Type": "application/json",
-        "X-RapidAPI-Host": process.env.REACT_APP_RAPID_API_HOST,
-        "X-RapidAPI-Key": process.env.REACT_APP_RAPID_API_KEY,
-      },
-      data: { submissions: formData },
-    };
 
-    axios
-      .request(options)
-      .then(function (response) {
-        let token = response.data.map((item: any) => item.token).join(",");
-        checkStatusBatch(token);
-      })
-      .catch((err) => {
-        let error = err.response ? err.response.data : err;
-        setProcessing(false);
-        console.log(error);
-      });
+    const token = await compile.getTokenBatch(formData);
+
+    if (token) {
+      checkStatusBatch(token);
+    } else {
+      showErrorToast("Something went wrong on our end! Please try running your code again!");
+    }
   };
-  const checkStatusBatch = async (tokenStr: any) => {
-    const options = {
-      method: "GET",
-      url: process.env.REACT_APP_RAPID_API_URL_BATCH,
-      params: { tokens: tokenStr, base64_encoded: "true", fields: "*" },
-      headers: {
-        "X-RapidAPI-Host": process.env.REACT_APP_RAPID_API_HOST,
-        "X-RapidAPI-Key": process.env.REACT_APP_RAPID_API_KEY,
-      },
-    };
+
+  const checkStatusBatch = async (token: any) => {
     try {
-      let response = await axios.request(options);
+      const response = await compile.checkTokenStatusBatch(token);
+
       let lastInput = {};
-      for (const result of response.data["submissions"]) {
+      for (const result of response["submissions"]) {
         let statusId = result.status?.id;
         if (statusId === 1 || statusId === 2) {
           // still processing
           setTimeout(() => {
-            checkStatusBatch(tokenStr);
+            checkStatusBatch(token);
           }, 2000);
           return;
         } else if (result.status["description"] !== "Accepted") {
@@ -267,10 +232,7 @@ const Landing = () => {
             <LanguagesDropdown onSelectChange={onSelectChange} />
           </div>
           <div className="px-4 py-2">
-            <ThemeDropdown
-              handleThemeChange={handleThemeChange}
-              theme={theme}
-            />
+            <ThemeDropdown handleThemeChange={handleThemeChange} theme={theme} />
           </div>
         </div>
         <div className="flex flex-row space-x-4 items-start px-4 py-4">
@@ -286,14 +248,9 @@ const Landing = () => {
           <div className="right-container flex flex-shrink-0 w-[30%] flex-col">
             <OutputWindow outputDetails={outputDetails} />
             <div className="flex flex-col items-end">
-              <CustomInput
-                customInput={testCaseInput}
-                setCustomInput={setCustomInput}
-              />
+              <CustomInput customInput={testCaseInput} setCustomInput={setCustomInput} />
               <button
-                onClick={() =>
-                  handleCompile(testCaseInputs[1], testCaseOutputs[1])
-                }
+                onClick={() => handleCompile(testCaseInputs[1], testCaseOutputs[1])}
                 disabled={!code}
                 className={classnames(
                   "mt-4 border-2 border-black z-10 rounded-md shadow-[5px_5px_0px_0px_rgba(0,0,0)] px-4 py-2 hover:shadow transition duration-200 bg-white flex-shrink-0",
@@ -303,9 +260,7 @@ const Landing = () => {
                 {processing ? "Processing..." : "Test Case 1"}
               </button>
               <button
-                onClick={() =>
-                  handleCompile(testCaseInputs[2], testCaseOutputs[2])
-                }
+                onClick={() => handleCompile(testCaseInputs[2], testCaseOutputs[2])}
                 disabled={!code}
                 className={classnames(
                   "mt-4 border-2 border-black z-10 rounded-md shadow-[5px_5px_0px_0px_rgba(0,0,0)] px-4 py-2 hover:shadow transition duration-200 bg-white flex-shrink-0",
@@ -315,9 +270,7 @@ const Landing = () => {
                 {processing ? "Processing..." : "Test Case 2"}
               </button>
               <button
-                onClick={() =>
-                  handleCompile(testCaseInputs[3], testCaseOutputs[3])
-                }
+                onClick={() => handleCompile(testCaseInputs[3], testCaseOutputs[3])}
                 disabled={!code}
                 className={classnames(
                   "mt-4 border-2 border-black z-10 rounded-md shadow-[5px_5px_0px_0px_rgba(0,0,0)] px-4 py-2 hover:shadow transition duration-200 bg-white flex-shrink-0",
