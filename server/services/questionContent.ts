@@ -16,39 +16,9 @@ export const questionContent = (fileContents: string) => {
       name: "executionCode",
     },
     {
-      start: "# <section4>",
-      end: "# </section4>",
+      start: "# <prompt>",
+      end: "# </prompt>",
       name: "prompt",
-    },
-    {
-      start: "# <section5>",
-      end: "# </section5>",
-      name: "testCaseInput1",
-    },
-    {
-      start: "# <section6>",
-      end: "# </section6>",
-      name: "testCaseOutput1",
-    },
-    {
-      start: "# <section7>",
-      end: "# </section7>",
-      name: "testCaseInput2",
-    },
-    {
-      start: "# <section8>",
-      end: "# </section8>",
-      name: "testCaseOutput2",
-    },
-    {
-      start: "# <section9>",
-      end: "# </section9>",
-      name: "testCaseInput3",
-    },
-    {
-      start: "# <section10>",
-      end: "# </section10>",
-      name: "testCaseOutput3",
     },
   ];
   const result = {};
@@ -61,5 +31,36 @@ export const questionContent = (fileContents: string) => {
     const contents = match ? match[1] : "";
     result[placeholder.name] = contents;
   }
+  const inputs = [];
+  const outputs = [];
+  let i = 1;
+  while (true) {
+    const inputPlaceholder = `# <testCaseInput${i}>`;
+    const outputPlaceholder = `# <testCaseOutput${i}>`;
+    const inputRegex = new RegExp(
+      `${inputPlaceholder}([\\s\\S]*?)# </testCaseInput${i}>`,
+      "s"
+    );
+    const outputRegex = new RegExp(
+      `${outputPlaceholder}([\\s\\S]*?)# </testCaseOutput${i}>`,
+      "s"
+    );
+    const inputMatch = fileContents.match(inputRegex);
+    const outputMatch = fileContents.match(outputRegex);
+    console.log(inputMatch);
+    console.log(outputMatch);
+    if (!inputMatch || !outputMatch) {
+      break;
+    }
+    inputs.push(inputMatch[1]);
+    outputs.push(outputMatch[1]);
+    result[`testCaseInput${i}`] = inputMatch[1];
+    result[`testCaseOutput${i}`] = outputMatch[1];
+    i++;
+  }
+  result["inputs"] = inputs;
+  result["outputs"] = outputs;
+  console.log(inputs);
+  console.log(outputs);
   return result;
 };
