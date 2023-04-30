@@ -2,22 +2,22 @@ import React from "react";
 
 const OutputDetails = ({ outputDetails }: { outputDetails: any }) => {
   return (
-    <div className="metrics-container mt-4 flex flex-col space-y-3">
+    <div className="metrics-container mt-4 flex items-start text-white flex-col space-y-3">
       <p className="text-sm">
         Status:{" "}
-        <span className="font-semibold px-2 py-1 rounded-md bg-gray-100">
+        <span className="font-semibold px-2 py-1 rounded-md text-black bg-gray-100">
           {outputDetails?.status?.description}
         </span>
       </p>
       <p className="text-sm">
         Memory:{" "}
-        <span className="font-semibold px-2 py-1 rounded-md bg-gray-100">
+        <span className="font-semibold px-2 py-1 rounded-md text-black bg-gray-100">
           {outputDetails?.memory}
         </span>
       </p>
       <p className="text-sm">
         Time:{" "}
-        <span className="font-semibold px-2 py-1 rounded-md bg-gray-100">
+        <span className="font-semibold px-2 py-1 rounded-md text-black bg-gray-100">
           {outputDetails?.time}
         </span>
       </p>

@@ -18,31 +18,36 @@ export const questionContent = (fileContents: string) => {
     {
       start: "# <section4>",
       end: "# </section4>",
-      name: "testCaseInput1",
+      name: "prompt",
     },
     {
       start: "# <section5>",
       end: "# </section5>",
-      name: "testCaseOutput1",
+      name: "testCaseInput1",
     },
     {
       start: "# <section6>",
       end: "# </section6>",
-      name: "testCaseInput2",
+      name: "testCaseOutput1",
     },
     {
       start: "# <section7>",
       end: "# </section7>",
-      name: "testCaseOutput2",
+      name: "testCaseInput2",
     },
     {
       start: "# <section8>",
       end: "# </section8>",
-      name: "testCaseInput3",
+      name: "testCaseOutput2",
     },
     {
       start: "# <section9>",
       end: "# </section9>",
+      name: "testCaseInput3",
+    },
+    {
+      start: "# <section10>",
+      end: "# </section10>",
       name: "testCaseOutput3",
     },
   ];
