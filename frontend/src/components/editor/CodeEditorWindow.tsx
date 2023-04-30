@@ -1,6 +1,6 @@
 // CodeEditorWindow.js
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import Editor from "@monaco-editor/react";
 
@@ -9,10 +9,19 @@ type Params = {
   language: string;
   code: string;
   theme: string;
+  darkorlight: string;
 };
 
-const CodeEditorWindow = ({ onChange, language, code, theme }: Params) => {
+const CodeEditorWindow = ({
+  onChange,
+  language,
+  code,
+  theme,
+  darkorlight,
+}: Params) => {
   const [value, setValue] = useState(code || "");
+
+  console.log("dark", darkorlight);
 
   const handleEditorChange = (value: any) => {
     //need to change value's type
@@ -21,13 +30,23 @@ const CodeEditorWindow = ({ onChange, language, code, theme }: Params) => {
   };
 
   return (
-    <div className="overlay rounded-md overflow-hidden w-full h-full shadow-4xl">
+    <div className="overlay rounded-md overflow-hidden w-full shadow-4xl">
       <Editor
-        height="85vh"
+        height="60vh"
         width={`100%`}
         language={language || "python"}
+        options={{
+          minimap: {
+            enabled: false,
+          },
+          quickSuggestions: {
+            other: false,
+            comments: false,
+            strings: false,
+          },
+        }}
         value={value}
-        theme={theme}
+        theme={darkorlight === "dark" ? "vs-dark" : "vs-light"}
         defaultValue={code}
         onChange={handleEditorChange}
       />

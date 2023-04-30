@@ -111,16 +111,21 @@ function App() {
 
   return (
     <div className="App">
-      <div className={`items-center justify-center flex flex-col ${isRoomFull ? "" : "h-screen"}`}>
-        <div className="h-16 w-full absolute top-0 bg-[#0099FF] flex items-center justify-center ">
-          <h1 className=" text-4xl text-white font-bold text-center">CodeStake</h1>
+      <div
+        className={`items-center justify-center flex flex-col ${
+          isRoomFull ? "hidden" : "h-screen"
+        }`}
+      >
+        <div className="h-16 w-full absolute top-0 bg-codestake flex items-center justify-center ">
+          <h1 className=" text-4xl text-white font-bold text-center">
+            CodeStake
+          </h1>
         </div>
         <InfoComponent />
       </div>
       <div>
         {isRoomFull ? (
           <div>
-            <hr className="border-t border-gray-300 mb-8" />
             <CodeEditor />
           </div>
         ) : (
