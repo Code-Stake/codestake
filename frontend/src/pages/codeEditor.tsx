@@ -39,6 +39,8 @@ export const CodeEditor = () => {
   const [testCaseOutputs, setTestCaseOutputs] = useState<any>({});
   const [exeCode, setExeCode] = useState<any>("");
   const [prompt, setPrompt] = useState("");
+  const [inputs, setInputs] = useState<any>([]);
+  const [outputs, setOutputs] = useState<any>([]);
 
   const getQuestionContent = () => {
     axios.get("http://localhost:3001/api/question/content").then((response) => {
@@ -48,6 +50,8 @@ export const CodeEditor = () => {
       setPrompt(response.data["prompt"]);
       setCode(response.data["starterCode"].trim());
       setExeCode(response.data["executionCode"]);
+      setInputs(response.data["inputs"]);
+      setOutputs(response.data["outputs"]);
       setTestCaseInputs({
         1: response.data["testCaseInput1"].trim(),
         2: response.data["testCaseInput2"].trim(),
@@ -341,9 +345,9 @@ export const CodeEditor = () => {
     return <div>Loading...</div>;
   } else {
     return (
-      <>
+      <div className="">
         <Navbar />
-        <div className="flex flex-row space-x-4 items-start px-4 py-4 bg-[#f5f5f5] text-[#010101] dark:text-[#f5f5f5] dark:bg-[#14191e]">
+        <div className="flex flex-row space-x-4 items-start  px-4 py-4 bg-[#f5f5f5] text-[#010101] dark:text-[#f5f5f5] dark:bg-[#14191e]">
           {/* <div className="flex w-screen flex-row">
           <div className="px-4 py-2">
             <LanguagesDropdown onSelectChange={onSelectChange} />
@@ -355,7 +359,7 @@ export const CodeEditor = () => {
             />
           </div>
         </div> */}
-          <div className="right-container flex flex-shrink-0 w-2/5 flex-col">
+          <div className="right-container flex  flex-shrink-0 w-2/5 flex-col">
             <div className="flex w-full ">
               <ReactMarkdown
                 className="markdown  w-[99%] text-start"
@@ -389,42 +393,19 @@ export const CodeEditor = () => {
               </div>
 
               <div className="flex flex-col w-1/4 overflow-auto m-4 flex-grow">
-                <button
-                  onClick={() =>
-                    handleCompile(testCaseInputs[1], testCaseOutputs[1])
-                  }
-                  disabled={!code || processing === true}
-                  className={classnames(
-                    "py-2.5 px-5 mr-2 mb-2 text-sm font-medium hover:opacity-80  focus:outline-none bg-[#0065f1] rounded-lg  border-gray-200 enabled:hover:bg-gray-100 enabled:hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 text-[#f5f5f5] dark:border-gray-600 dark:enabled:hover:text-white dark:enabled:hover:bg-gray-700 disabled:cursor-not-allowed",
-                    !code || processing ? "bg-[#003cc9] disabled" : ""
-                  )}
-                >
-                  {"Test Case 1"}
-                </button>
-                <button
-                  onClick={() =>
-                    handleCompile(testCaseInputs[2], testCaseOutputs[2])
-                  }
-                  disabled={!code || processing === true}
-                  className={classnames(
-                    "py-2.5 px-5 mr-2 mb-2 text-sm font-medium hover:opacity-80  focus:outline-none bg-[#0065f1] rounded-lg  border-gray-200 enabled:hover:bg-gray-100 enabled:hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 text-[#f5f5f5] dark:border-gray-600 enabled:dark:hover:text-white enabled:dark:hover:bg-gray-700 disabled:cursor-not-allowed",
-                    !code || processing ? " bg-[#003cc9] disabled" : ""
-                  )}
-                >
-                  {"Test Case 2"}
-                </button>
-                <button
-                  onClick={() =>
-                    handleCompile(testCaseInputs[3], testCaseOutputs[3])
-                  }
-                  disabled={!code || processing === true}
-                  className={classnames(
-                    "py-2.5 px-5 mr-2 mb-2 text-sm font-medium hover:opacity-80  focus:outline-none bg-[#0065f1] rounded-lg  border-gray-200 enabled:hover:bg-gray-100 enabled:hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 text-[#f5f5f5] dark:border-gray-600 enabled:dark:hover:text-white enabled:dark:hover:bg-gray-700 disabled:cursor-not-allowed",
-                    !code || processing ? "bg-[#003cc9] disabled" : ""
-                  )}
-                >
-                  {"Test Case 3"}
-                </button>
+                {inputs.map((input: any, index: number) => (
+                  <button
+                    onClick={() => handleCompile(input, outputs[index])}
+                    disabled={!code || processing === true}
+                    className={classnames(
+                      "py-2.5 px-5 mr-2 mb-2 text-sm font-medium hover:opacity-80  focus:outline-none bg-[#0065f1] rounded-lg  border-gray-200 enabled:hover:bg-gray-100 enabled:hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 text-[#f5f5f5] dark:border-gray-600 dark:enabled:hover:text-white dark:enabled:hover:bg-gray-700 disabled:cursor-not-allowed",
+                      !code || processing ? "bg-[#003cc9] disabled" : ""
+                    )}
+                  >
+                    {`Test Case ${index + 1}`}
+                  </button>
+                ))}
+
                 <button
                   onClick={handleCompileBatch}
                   disabled={!code || processing === true}
@@ -450,7 +431,7 @@ export const CodeEditor = () => {
             pauseOnHover
           />
         </div>
-      </>
+      </div>
     );
   }
 };

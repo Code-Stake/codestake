@@ -21,8 +21,6 @@ const CodeEditorWindow = ({
 }: Params) => {
   const [value, setValue] = useState(code || "");
 
-  console.log("dark", darkorlight);
-
   const handleEditorChange = (value: any) => {
     //need to change value's type
     setValue(value);

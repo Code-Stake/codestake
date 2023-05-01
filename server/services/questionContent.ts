@@ -35,8 +35,8 @@ export const questionContent = (fileContents: string) => {
   const outputs = [];
   let i = 1;
   while (true) {
-    const inputPlaceholder = `# <testCaseInput${i}>`;
-    const outputPlaceholder = `# <testCaseOutput${i}>`;
+    const inputPlaceholder = `# <testCaseInput${i}>\n`;
+    const outputPlaceholder = `# <testCaseOutput${i}>\n`;
     const inputRegex = new RegExp(
       `${inputPlaceholder}([\\s\\S]*?)# </testCaseInput${i}>`,
       "s"
@@ -47,8 +47,6 @@ export const questionContent = (fileContents: string) => {
     );
     const inputMatch = fileContents.match(inputRegex);
     const outputMatch = fileContents.match(outputRegex);
-    console.log(inputMatch);
-    console.log(outputMatch);
     if (!inputMatch || !outputMatch) {
       break;
     }
@@ -60,7 +58,5 @@ export const questionContent = (fileContents: string) => {
   }
   result["inputs"] = inputs;
   result["outputs"] = outputs;
-  console.log(inputs);
-  console.log(outputs);
   return result;
 };
