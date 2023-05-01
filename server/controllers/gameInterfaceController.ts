@@ -21,7 +21,6 @@ const getQuestionFile = async (req: Request, res: Response) => {
 const getQuestionContent = async (file: any) => {
   try {
     const contents = await file.download().then((contents) => {
-      console.log(contents.toString());
       return questionContent(contents.toString());
     });
     return contents;
