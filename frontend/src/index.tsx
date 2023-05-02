@@ -12,6 +12,7 @@ import { AuthContextProvider } from "./context/AuthContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { Profile } from "./pages/Profile";
 import "./index.css";
+import { MatchMaking } from "./pages/MatchMaking";
 
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement
@@ -35,6 +36,14 @@ root.render(
           element={
             <ProtectedRoute>
               <Profile />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/matchmaking"
+          element={
+            <ProtectedRoute>
+              <MatchMaking />
             </ProtectedRoute>
           }
         />

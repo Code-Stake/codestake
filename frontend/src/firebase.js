@@ -2,6 +2,7 @@
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import { getAuth } from "firebase/auth";
+import { getDatabase, ref } from "firebase/database";
 import firebase from "firebase/app";
 
 // TODO: Add SDKs for Firebase products that you want to use
@@ -28,9 +29,11 @@ const firebaseConfig = {
   messagingSenderId: "760245609819",
   appId: "1:760245609819:web:d4a14820cf47809709667e",
   measurementId: "G-0V1XJMKH63",
+  databaseURL: "https://codestake-3a83c-default-rtdb.firebaseio.com",
 };
 
 // Initialize Firebase
 export const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 export const auth = getAuth(app);
+export const db = getDatabase();
