@@ -13,15 +13,24 @@ import CustomInput from "../components/editor/CustomInput";
 import OutputDetails from "../components/editor/OutputDetails";
 import ThemeDropdown from "../components/editor/ThemeDropdown";
 import LanguagesDropdown from "../components/editor/LanguagesDropdown";
+import { UserAuth } from "../context/AuthContext";
+import io from "socket.io-client";
+import { useNavigate } from "react-router-dom";
+
 import axios from "axios";
 import { compile } from "../api/compile";
 import { Bar, Container, Section } from "react-simple-resizer";
 import { ReactMarkdown } from "react-markdown/lib/react-markdown";
 import remarkGfm from "remark-gfm";
+import Poststake from "./Poststake";
 
 type themeType = { value: string; label: string } | string;
 
-export const CodeEditor = () => {
+export const CodeEditor = (roomId: any) => {
+  const socket = io("http://localhost:3001");
+
+  //@ts-ignore
+  const { user, logout } = UserAuth();
   // UI related states
   const [customInput, setCustomInput] = useState("");
   const [outputDetails, setOutputDetails] = useState<any>(null);
@@ -94,6 +103,25 @@ export const CodeEditor = () => {
     );
   }, []);
   function handleThemeChange(th: any) {}
+  const navigate = useNavigate();
+
+  function SendWinner() {
+    const userid = user.uid;
+    const returnObject = {
+      userid: userid,
+      roomid: roomId,
+    };
+    socket.emit("winner", returnObject);
+
+    // display modal
+    console.log("Left the room");
+
+    // redirect to home page
+    // redirect to poststake using react router dom
+
+    navigate("/poststake", { state: { winner: true } });
+    console.log("redirected to home page");
+  }
 
   const showSuccessToast = (msg: any) => {
     toast.success(msg || `Compiled Successfully!`, {
@@ -232,6 +260,7 @@ export const CodeEditor = () => {
       }
       setProcessing(false);
       setOutputDetails(lastInput);
+      SendWinner();
       setCustomInput("Passed all test cases successfully!");
       showSuccessToast(`Passed all test cases successfully!`);
     } catch (err) {
@@ -240,47 +269,6 @@ export const CodeEditor = () => {
       showErrorToast();
     }
   };
-
-  const markdown = `
-  ## Reverse Linked List
-
-  Given the head of a singly linked list, reverse the list, and return the reversed list.
-
-  ### Example 1
-  \`\`\`
-  Input: head = [1,2,3,4,5]
-  Output: [5,4,3,2,1]
-  \`\`\`
-
-  ### Example 2 
-  \`\`\`
-  Input: head = [5,6,3,5]
-  Output: [5,3,6,5]
-  \`\`\`
-
-  ### Example 3 
-  \`\`\`
-  Input: head = []
-  Output: []
-  \`\`\`
-
-
-  ### Constraints
-  * The number of nodes in the list is in the range \`[0, 5 * 10^4]\`
-        
-  * The values of nodes in the list is in the range \`-5 * 10^4 <= Node.val <= 5 * 10^4\`
-  
-  ### Follow-up
-  
-  Solve the problem using both iterative and recursive approaches.
-  
-
-  
-
-  
-
-
-`;
 
   const Navbar = () => {
     return (

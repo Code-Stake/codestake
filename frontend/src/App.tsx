@@ -126,7 +126,7 @@ function App() {
       <div>
         {isRoomFull ? (
           <div>
-            <CodeEditor />
+            <CodeEditor roomId={roomEntered} />
           </div>
         ) : (
           <div></div>

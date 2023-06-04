@@ -13,6 +13,7 @@ import { ProtectedRoute } from "./components/ProtectedRoute";
 import { Profile } from "./pages/Profile";
 import "./index.css";
 import { MatchMaking } from "./pages/MatchMaking";
+import Poststake from "./pages/Poststake";
 
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement
@@ -23,6 +24,7 @@ root.render(
       <Routes>
         <Route path="/" element={<App />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/poststake" element={<Poststake />} />
         <Route
           path="/dashboard"
           element={

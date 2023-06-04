@@ -1,9 +1,7 @@
 import { Server } from "socket.io";
 import { app, server } from "../app";
 
-
-export default function socketController (io: Server)  {
-
+export default function socketController(io: Server) {
   const roomCapacity = {};
 
   io.on("connection", (socket) => {
@@ -34,6 +32,14 @@ export default function socketController (io: Server)  {
       socket.to(data.roomEntered).emit("receive_message", data);
     });
 
+    socket.on("winner", (data) => {
+      // close the room
+      const room = data.room;
+      io.to(room).emit("room_closed", { message: `Room ${room} is closed` });
+      // remove the room from the roomCapacity object
+      delete roomCapacity[room];
+    });
+
     socket.on("get_room_capacity", (data) => {
       console.log(roomCapacity);
       socket.emit("room_capacity", roomCapacity);
@@ -55,5 +61,4 @@ export default function socketController (io: Server)  {
       });
     });
   });
-
 }
