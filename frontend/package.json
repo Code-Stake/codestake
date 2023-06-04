@@ -23,7 +23,6 @@
     "react-router-dom": "^6.9.0",
     "react-scripts": "5.0.1",
     "react-select": "^5.7.0",
-    "react-simple-resizer": "^2.1.0",
     "react-toastify": "^9.1.1",
     "remark-gfm": "^3.0.1",
     "socket.io-client": "^4.5.4",

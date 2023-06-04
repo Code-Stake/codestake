@@ -15,7 +15,7 @@ import ThemeDropdown from "../components/editor/ThemeDropdown";
 import LanguagesDropdown from "../components/editor/LanguagesDropdown";
 import axios from "axios";
 import { compile } from "../api/compile";
-import { Bar, Container, Section } from "react-simple-resizer";
+// import { Bar, Container, Section } from "react-simple-resizer";
 import { ReactMarkdown } from "react-markdown/lib/react-markdown";
 import remarkGfm from "remark-gfm";
 
